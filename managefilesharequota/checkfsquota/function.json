@@ -1,0 +1,24 @@
+{
+  "bindings": [
+    {
+      "name": "Timer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */3 * * * *"
+    },
+    {
+      "type": "queue",
+      "direction": "out",
+      "name": "expandfsquota",
+      "queueName": "expandfsquota",
+      "connection": "storageaccountazfilaa5b_STORAGE"
+    },
+    {
+      "type": "queue",
+      "direction": "out",
+      "name": "testq",
+      "queueName": "testq",
+      "connection": "storageaccountazfilaa5b_STORAGE"
+    }
+  ]
+}

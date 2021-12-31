@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "QueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "expandfsquota",
+      "connection": "storageaccountazfilaa5b_STORAGE"
+    }
+  ]
+}
