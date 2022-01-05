@@ -11,15 +11,17 @@ One issue customers find is that there is no magic checkbox that enables autogro
 Note\* - This is not a problem for Standard Storage Files since the size of the configured file share size does not incur any cost as it is the actual usage you are charged for. Therefore with Standard Storage Files you can set your file share to the highest possible size and you won't reach size limits or pay for this upper limit.
 
 The following Azure technologies are used in this solution:
-• Azure Functions (Powershell)
-• Azure Files Premium (Azure Storage)
-• Azure Storage Queue
-• Azure Managed Service Identity
+
+    • Azure Functions (Powershell)
+    • Azure Files Premium (Azure Storage)
+    • Azure Storage Queue
+    • Azure Managed Service Identity
 
 The default configuration will search for Premium Azure File shares that have the following Azure Tags:
-• Autogrow - true or false.
-• Watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 80 will mean the file share quota will be increased if the share usage is greater than 80% of the provisioned capacity.
-• Quotagrowth - an integer number representing the percentage growth to increase the share by e.g. 15 will increase the file share quota by 15%.
+
+    • Autogrow - true or false.
+    • Watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 80 will mean the file share quota will be increased if the share usage is greater than 80% of the provisioned capacity.
+    • Quotagrowth - an integer number representing the percentage growth to increase the share by e.g. 15 will increase the file share quota by 15%.
 
 # Enhancements
 
