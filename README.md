@@ -24,8 +24,7 @@ The default configuration will search for Premium Azure File shares that have th
 # Enhancements
 
     • Enable searching for all storage accounts under Management Group(s)
-
-Alert and approve when a share needs to be increased
+    • Alert and approve when a share needs to be increased
 
 # How to deploy
 
