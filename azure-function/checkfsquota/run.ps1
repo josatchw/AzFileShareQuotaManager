@@ -60,7 +60,6 @@ foreach ($storageAccount in $storageAccounts) {
             $jsonMessage = $message | ConvertTo-Json
             Write-Host $jsonMessage
             Push-OutputBinding -Name expandfsquota -Value $jsonMessage.ToString()
-            Push-OutputBinding -Name testq -Value $jsonMessage.ToString()
     
         }
         else {

@@ -33,8 +33,9 @@ Detailed steps still in progress. For now
 - Deploy the bicep template from the templates folder. The artefacts will all be deployed to one resource group.
 
   - Azure Files Premium Storage account to host a test file share
-  - Storage account to host the queue - this is used by the Azure Functions
+  - Storage account to host the queue - this is used by the Azure Functions. Record the Connection string of the storage account
   - Azure App Service (Plan) and Function App configured to Powershell. Also includes storage for the app and app insights. Configure the Function app to use a Managed Service Identity and provide that Identity Reader to the Subscription and Resource Group Contributor.
+  - Set the Funtion App Setting (Portal > Function > Configuration) 'outputMessageQueue_STORAGE' to be the Storage Queue connection string. The checkfsquota function will write to this queue and the increasefsquota function will read from it.
 
 - Deploy the Azure Functions (Powershell Core) code to the Azure Function App. You can copy the code in to the functions in the Azure Portal or use the VSCode function extension (Reference below).
 

@@ -133,6 +133,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'tag_watermark'
           value: 'watermark'
         }
+        {
+          name: 'outputMessageQueue_STORAGE'
+          value: '<Storage Message Queue connection string where checkfsquota function will write to (binding) and increasefsquota function will read from (binding) >'
+        }
       ]
     }
   }

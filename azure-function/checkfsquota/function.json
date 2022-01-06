@@ -11,14 +11,7 @@
       "direction": "out",
       "name": "expandfsquota",
       "queueName": "expandfsquota",
-      "connection": "storageaccountazfilaa5b_STORAGE"
-    },
-    {
-      "type": "queue",
-      "direction": "out",
-      "name": "testq",
-      "queueName": "testq",
-      "connection": "storageaccountazfilaa5b_STORAGE"
+      "connection": "outputMessageQueue_STORAGE"
     }
   ]
 }
