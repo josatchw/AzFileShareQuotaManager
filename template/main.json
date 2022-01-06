@@ -1,0 +1,154 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "392906495307585467"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "namePrefix": "quotamgr3",
+    "location": "[resourceGroup().location]",
+    "quota": 100,
+    "FSstorageAccountName": "[format('fs{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
+    "QUstorageAccountName": "[format('qu{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
+    "storageAccountName": "[format('ap{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
+    "hostingPlanName": "[format('apphp{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
+    "appInsightsName": "[format('appin{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
+    "functionAppName": "[format('app{0}', variables('namePrefix'))]",
+    "fileShareName": "testshare1"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', variables('QUstorageAccountName'), 'default', 'expandfsquota')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('QUstorageAccountName'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', variables('QUstorageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('FSstorageAccountName')]",
+      "location": "[variables('location')]",
+      "kind": "FileStorage",
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "properties": {
+        "accessTier": "Premium"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/default/{1}', variables('FSstorageAccountName'), variables('fileShareName'))]",
+      "properties": {
+        "enabledProtocols": "SMB",
+        "shareQuota": "[variables('quota')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('FSstorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('QUstorageAccountName')]",
+      "location": "[variables('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[variables('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsightsName')]",
+      "location": "[variables('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      },
+      "tags": {
+        "[format('hidden-link:/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Web/sites/{2}', subscription().id, resourceGroup().name, variables('functionAppName'))]": "Resource"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('functionAppName')]",
+      "location": "[variables('location')]",
+      "kind": "functionapp",
+      "properties": {
+        "httpsOnly": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "clientAffinityEnabled": true,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-06-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "powershell"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-06-01').keys[0].value)]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    }
+  ]
+}
