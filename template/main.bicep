@@ -121,4 +121,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
     hostingPlan
     storageAccount
   ]
+  resource webconfig 'config@2021-02-01' = {
+    name: 'web'
+    properties: {
+      powerShellVersion: '~7'
+    }
+  }
 }

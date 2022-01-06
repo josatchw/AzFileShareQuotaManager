@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "392906495307585467"
+      "templateHash": "3132447383241497814"
     }
   },
   "functions": [],
@@ -37,6 +37,17 @@
       "name": "[format('{0}/{1}', variables('QUstorageAccountName'), 'default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/{1}', variables('functionAppName'), 'web')]",
+      "properties": {
+        "powerShellVersion": "~7"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
     },
     {

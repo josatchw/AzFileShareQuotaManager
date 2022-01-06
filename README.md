@@ -35,3 +35,7 @@ Detailed steps to follow
 Deploy Azure Files Premium Storage account and create a file share
 Create a storage queue in dedicated Storage account
 Deploy Azure Functions (Powershell Core)
+
+# resources
+
+- Azure storage templates - https://docs.microsoft.com/en-us/azure/templates/microsoft.storage/2021-06-01/storageaccounts?tabs=bicep
