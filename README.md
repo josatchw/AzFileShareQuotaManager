@@ -20,22 +20,29 @@ The following Azure technologies are used in this solution:
 The default configuration will search for Premium Azure File shares that have the following Azure Tags:
 
     • Autogrow - true or false.
-    • Watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 80 will mean the file share quota will be increased if the share usage is greater than 80% of the provisioned capacity.
+    • Watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 15 will mean the file share quota will be increased if the share usage has less than 15% of the provisioned capacity left.
     • Quotagrowth - an integer number representing the percentage growth to increase the share by e.g. 15 will increase the file share quota by 15%.
+
+The 'checkfsquota' function will check within the target subscription for all storage accounts marked as 'true' for the 'autogrow' tag. Then all fileshares in that account will be checked if the quota needs to be increased. If a quota threshold is within the watermark then a message is placed on the Azure storage Queue. The 'increasefsquota' function is triggered from the queue and reads the storage account and share details in order to process the quota increase.
+
+# How to deploy
+
+Detailed steps still in progress. For now
+
+- Deploy the bicep template from the templates folder. The artefacts will all be deployed to one resource group.
+
+  - Azure Files Premium Storage account to host a test file share
+  - Storage account to host the queue - this is used by the Azure Functions
+  - Azure App Service (Plan) and Function App configured to Powershell. Also includes storage for the app and app insights. Configure the Function app to use a Managed Service Identity and provide that Identity Reader to the Subscription and Resource Group Contributor.
+
+- Deploy the Azure Functions (Powershell Core) code to the Azure Function App. You can copy the code in to the functions in the Azure Portal or use the VSCode function extension (Reference below).
 
 # Enhancements
 
     • Enable searching for all storage accounts under Management Group(s)
     • Alert and approve when a share needs to be increased
 
-# How to deploy
-
-Detailed steps to follow
-
-Deploy Azure Files Premium Storage account and create a file share
-Create a storage queue in dedicated Storage account
-Deploy Azure Functions (Powershell Core)
-
 # resources
 
 - Azure storage templates - https://docs.microsoft.com/en-us/azure/templates/microsoft.storage/2021-06-01/storageaccounts?tabs=bicep
+- VSCode Azure function extenstion - https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-powershell?tabs=portal
