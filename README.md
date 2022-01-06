@@ -13,16 +13,16 @@ Note\* - This is not a problem for Standard Storage Files since the size of the 
 
 The following Azure technologies are used in this solution:
 
-    - Azure Functions (Powershell)
-    - Azure Files Premium (Azure Storage)
-    - Azure Storage Queue
-    - Azure Managed Service Identity
+- Azure Functions (Powershell)
+- Azure Files Premium (Azure Storage)
+- Azure Storage Queue
+- Azure Managed Service Identity
 
 The default configuration will search for Premium Azure File shares that have the following Azure Tags:
 
-    - Autogrow - true or false.
-    - Watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 15 will mean the file share quota will be increased if the share usage has less than 15% of the provisioned capacity left.
-    - Quotagrowth - an integer number representing the percentage growth to increase the share by e.g. 15 will increase the file share quota by 15%.
+- autogrow - true or false.
+- watermark - integer number representing the percentage threshold for triggering the quota growth e.g. a value of 15 will mean the file share quota will be increased if the share usage has less than 15% of the provisioned capacity left.
+- quotagrowth - an integer number representing the percentage growth to increase the share by e.g. 15 will increase the file share quota by 15%.
 
 The 'checkfsquota' function will check within the target subscription for all storage accounts marked as 'true' for the 'autogrow' tag. Then all fileshares in that account will be checked if the quota needs to be increased. If a quota threshold is within the watermark then a message is placed on the Azure storage Queue. The 'increasefsquota' function is triggered from the queue and reads the storage account and share details in order to process the quota increase.
 
