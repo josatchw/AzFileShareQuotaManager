@@ -39,7 +39,7 @@ Detailed steps still in progress. For now
   - Check Funtion App Setting (Portal > Function > Configuration) 'outputMessageQueue_STORAGE'. This is automated in the deployment to be the Storage Queue connection string. The checkfsquota function will write to this queue and the increasefsquota function will read from it.
   - Check the 'targetSubscriptionId' app setting, this was automated to be your SubscriptionId you used to deploy the template.
 
-- Deploy the Azure Functions (Powershell Core) code to the Azure Function App. You can copy the code in to the functions in the Azure Portal or use the VSCode function extension (Reference below).
+- Deploy the Azure Functions (Powershell Core) code to the Azure Function App. You can copy the code in to the functions in the Azure Portal, use the [VSCode function extension](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-powershell?tabs=portal), or deploy from the [commandline](https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-powershell?tabs=azure-cli%2Cbrowser).
 
 # Enhancements
 
@@ -52,3 +52,4 @@ Detailed steps still in progress. For now
 - [Azure storage templates](https://docs.microsoft.com/en-us/azure/templates/microsoft.storage/2021-06-01/storageaccounts?tabs=bicep)
 - [VSCode Azure function extenstion](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-powershell?tabs=portal)
 - [Azure Files Sample PFS Autogrow](https://github.com/Azure-Samples/azure-files-samples/tree/master/autogrow-PFS-quota)
+- [Deploy Powershell Function App by command line](https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-powershell?tabs=azure-cli%2Cbrowser)
