@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "3132447383241497814"
+      "templateHash": "157780831597458587"
     }
   },
   "functions": [],
@@ -61,6 +61,11 @@
       },
       "properties": {
         "accessTier": "Premium"
+      },
+      "tags": {
+        "autogrow": "true",
+        "watermark": "15",
+        "quotagrowth": "15"
       }
     },
     {
@@ -151,6 +156,26 @@
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
               "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-06-01').keys[0].value)]"
+            },
+            {
+              "name": "targetSubscriptionId",
+              "value": "XXXXXXXXXXXXXXXXXXXXX"
+            },
+            {
+              "name": "tag_autogrow",
+              "value": "autogrow"
+            },
+            {
+              "name": "tag_quotagrowth",
+              "value": "quotagrowth"
+            },
+            {
+              "name": "tag_watermark",
+              "value": "watermark"
+            },
+            {
+              "name": "outputMessageQueue_STORAGE",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('QUstorageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName')), '2021-06-01').keys[0].value)]"
             }
           ]
         }
@@ -158,8 +183,15 @@
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
         "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "queueStorageConnectionString": {
+      "type": "string",
+      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('QUstorageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName')), '2021-06-01').keys[0].value)]"
+    }
+  }
 }

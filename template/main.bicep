@@ -53,7 +53,7 @@ resource queueStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
+resource storageAccountAppService 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: storageAccountName
   location: location
   kind: 'StorageV2'
@@ -101,7 +101,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountAppService.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccountAppService.id, storageAccountAppService.apiVersion).keys[0].value}'
         }
         {
           'name': 'FUNCTIONS_EXTENSION_VERSION'
@@ -113,7 +113,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountAppService.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccountAppService.id, storageAccountAppService.apiVersion).keys[0].value}'
         }
         // WEBSITE_CONTENTSHARE will also be auto-generated - https://docs.microsoft.com/en-us/azure/azure-functions/functions-app-settings#website_contentshare
         // WEBSITE_RUN_FROM_PACKAGE will be set to 1 by func azure functionapp publish
@@ -135,7 +135,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'outputMessageQueue_STORAGE'
-          value: '<Storage Message Queue connection string where checkfsquota function will write to (binding) and increasefsquota function will read from (binding) >'
+          value: queueStorageConn
         }
       ]
     }
@@ -144,7 +144,8 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   dependsOn: [
     appInsights
     hostingPlan
-    storageAccount
+    storageAccountAppService
+    queueStorageAccount
   ]
   resource webconfig 'config@2021-02-01' = {
     name: 'web'
@@ -153,3 +154,6 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
     }
   }
 }
+
+var queueStorageConn = 'DefaultEndpointsProtocol=https;AccountName=${queueStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(queueStorageAccount.id, queueStorageAccount.apiVersion).keys[0].value}'
+output queueStorageConnectionString string = queueStorageConn
