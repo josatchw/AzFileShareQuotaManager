@@ -5,11 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "157780831597458587"
+      "templateHash": "2660318305080761298"
     }
   },
   "functions": [],
   "variables": {
+    "targetSubscriptionId": "[subscription()]",
     "namePrefix": "quotamgr3",
     "location": "[resourceGroup().location]",
     "quota": 100,
@@ -159,7 +160,7 @@
             },
             {
               "name": "targetSubscriptionId",
-              "value": "XXXXXXXXXXXXXXXXXXXXX"
+              "value": "[variables('targetSubscriptionId').subscriptionId]"
             },
             {
               "name": "tag_autogrow",

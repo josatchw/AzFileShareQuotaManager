@@ -1,5 +1,6 @@
 targetScope = 'resourceGroup'
 
+var targetSubscriptionId = subscription()
 var namePrefix = 'quotamgr3'
 var location = resourceGroup().location
 var quota = 100
@@ -119,7 +120,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         // WEBSITE_RUN_FROM_PACKAGE will be set to 1 by func azure functionapp publish
         {
           name: 'targetSubscriptionId'
-          value: 'XXXXXXXXXXXXXXXXXXXXX'
+          value: targetSubscriptionId.subscriptionId
         }
         {
           name: 'tag_autogrow'
