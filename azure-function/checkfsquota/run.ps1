@@ -45,7 +45,7 @@ foreach ($storageAccount in $storageAccounts) {
         $remainingCapacity = ($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2, 30))))
         # capacity in bytes can also be converted to GB: [math]::round($byteValue /1Gb, 3)
         if ($devEnv) { $remainingCapacity = 1 }
-        if ($remainingCapacity -lt ($ProvisionedCapacity * ($quotagrowth / 100))) {
+        if ($remainingCapacity -lt ($ProvisionedCapacity * ($watermark / 100))) {
             $message = @{
                 SubscriptionId      = $subscription_id
                 ResourceGroup       = $storageAccount.resourceGroup
