@@ -44,6 +44,7 @@ Detailed steps still in progress. For now
 
     • Enable searching for all storage accounts under Management Group(s)
     • Alert and approve when a share needs to be increased
+    • Azure Monitor Workbook to show status of tracked (autogrow) file shares, the current usage status, increase quota functions processed etc.
 
 # resources
 
