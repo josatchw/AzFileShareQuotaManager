@@ -35,8 +35,8 @@ Detailed steps still in progress. For now
   - Azure Files Premium Storage account to host a test file share
   - Storage account to host the queue - this is used by the Azure Functions. Record the Connection string of the storage account
   - Azure App Service (Plan) and Function App configured to Powershell. Also includes storage for the app and app insights. Configure the Function app to use a Managed Service Identity and provide that Identity Reader to the Subscription and Resource Group Contributor.
-  - Set the Funtion App Setting (Portal > Function > Configuration) 'outputMessageQueue_STORAGE' to be the Storage Queue connection string. The checkfsquota function will write to this queue and the increasefsquota function will read from it.
-  - Set the 'targetSubscriptionId' app setting to be your Sub Id you used to deploy the template.
+  - Check Funtion App Setting (Portal > Function > Configuration) 'outputMessageQueue_STORAGE'. This is automated in the deployment to be the Storage Queue connection string. The checkfsquota function will write to this queue and the increasefsquota function will read from it.
+  - Check the 'targetSubscriptionId' app setting, this was automated to be your SubscriptionId you used to deploy the template.
 
 - Deploy the Azure Functions (Powershell Core) code to the Azure Function App. You can copy the code in to the functions in the Azure Portal or use the VSCode function extension (Reference below).
 
