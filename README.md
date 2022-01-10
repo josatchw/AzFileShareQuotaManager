@@ -8,7 +8,7 @@ Many organisations are migrating Petabytes of data to the cloud often in the for
 
 There currently isn't the ability to automatically increase a provisioned file share for Azure Files Premium. Therefore the limits of a file share size can be reached without warning to the user, system or administrator which can disrupt business applications and create friction between IT teams within an organisation. This repository aims to mitigate this by providing a scheduled job that can check current usage of all shares that have a specific Azure Tag, if the share is within the tolerance then the share is programmatically increased. The function code for this repo was originally developed from this [Azure Files Sample PFS Autogrow](https://github.com/Azure-Samples/azure-files-samples/tree/master/autogrow-PFS-quota).
 
-**Note** - \* _This is not a problem for Standard Storage Files since the size of the configured file share size does not incur any cost as it is the actual usage you are charged for. Therefore with Standard Storage Files you can set your file share to the highest possible size and you won't reach size limits or pay for this upper limit._ \*
+**Note** - \* _This is not a problem for Standard Storage Files since the cost is based on actual usage and transactions so if you declare a file share to be 200GB but only use 100GB you are only charged for the 100GB and the transaction costs for reading and writing data etc. With Standard Storage Files you can set your file share to the highest possible size and you won't reach size limits or pay for this upper limit._ \*
 
 The following Azure technologies are used in this solution:
 
