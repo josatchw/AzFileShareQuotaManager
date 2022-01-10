@@ -52,6 +52,12 @@ resource queueStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
       name: 'expandfsquota'
     }
   }
+  resource blobLogs 'blobServices@2021-06-01' = {
+    name: 'default'
+    resource blob 'containers@2021-06-01' = {
+      name: 'sharestats'
+    }
+  }
 }
 
 resource storageAccountAppService 'Microsoft.Storage/storageAccounts@2021-06-01' = {
