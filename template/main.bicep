@@ -25,7 +25,7 @@ resource fileStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   }
   tags: {
     'autogrow': 'true'
-    'watermark': '15'
+    'watermark': '85'
     'quotagrowth': '15'
   }
 }

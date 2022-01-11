@@ -27,6 +27,8 @@ $azgraphResponse = Search-AzGraph -Query $query
 Write-Host $azgraphResponse.Data
 $storageAccounts = $azgraphResponse.Data
 
+[System.Collections.ArrayList]$messages = @()
+
 foreach ($storageAccount in $storageAccounts) {
     $tagobj = Get-AzStorageAccount -ResourceGroupName $storageAccount.resourceGroup -Name $storageAccount.name | Select-Object tags
     $storageAccountName = $storageAccount.name
@@ -44,17 +46,22 @@ foreach ($storageAccount in $storageAccounts) {
         # remaining capacity in GB (with convert usedCapacity bytes to GB)
         $remainingCapacity = ($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2, 30))))
         # capacity in bytes can also be converted to GB: [math]::round($byteValue /1Gb, 3)
+        
+        $message = @{
+            SubscriptionId      = $subscription_id
+            ResourceGroup       = $storageAccount.resourceGroup
+            FileShare           = $share.Name 
+            StorageAccount      = $storageAccount.name
+            ProvisionedCapacity = $ProvisionedCapacity
+            quotagrowth         = $quotagrowth
+            UsedCapacity        = $UsedCapacity
+            TagAutogrow         = $tagobj.Tags.$tag_autogrow
+            TagWatermark        = $tagobj.Tags.$tag_watermark
+            TagQuotagrowth      = $tagobj.Tags.$tag_quotagrowth
+        }
+
         if ($devEnv) { $remainingCapacity = 1 }
-        if ($remainingCapacity -lt ($ProvisionedCapacity * ($watermark / 100))) {
-            $message = @{
-                SubscriptionId      = $subscription_id
-                ResourceGroup       = $storageAccount.resourceGroup
-                FileShare           = $share.Name 
-                StorageAccount      = $storageAccount.name
-                ProvisionedCapacity = $ProvisionedCapacity
-                quotagrowth         = $quotagrowth
-                UsedCapacity        = $UsedCapacity
-            }
+        if ($remainingCapacity -ge $watermark ) {
 
             Write-Host "Queing storageAccount quota increase request..."
             $jsonMessage = $message | ConvertTo-Json
@@ -66,8 +73,18 @@ foreach ($storageAccount in $storageAccounts) {
             $message = "Storage Share: $($share.Name) - Remaining capacity sufficient: $([math]::round($remainingCapacity,2))GB" 
             Write-Host $message
         }
+        # collate all stats 
+        $messages.Add($message)
     }
+    
 }
+# Write to shareStats log
+$shareStats = [PSCustomObject]@{
+    StatsDate            = $Time.ToUniversalTime()
+    SubscriptionId       = $subscription_id
+    ShareStatsCollection = $messages
+} 
+Push-OutputBinding -Name shareStatsBlob -Value $shareStats | ConvertTo-Json
 
 # Write an information log with the current time.
 Write-Host "CHECKFSQUOTA timer trigger function ran! TIME: $currentUTCtime"

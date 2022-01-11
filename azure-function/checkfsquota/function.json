@@ -12,6 +12,13 @@
       "name": "expandfsquota",
       "queueName": "expandfsquota",
       "connection": "outputMessageQueue_STORAGE"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "shareStatsBlob",
+      "path": "sharestats/filesharestats.log",
+      "connection": "outputShareStats_STORAGE"
     }
   ]
 }
