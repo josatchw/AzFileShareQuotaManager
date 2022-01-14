@@ -14,20 +14,17 @@ $subscription_id = $env:targetSubscriptionId
 $tag_autogrow = $env:tag_autogrow
 $tag_watermark = $env:tag_watermark
 $tag_quotagrowth = $env:tag_quotagrowth
-$devEnv = [System.Convert]::ToBoolean($env:isDev) 
 
 # Write an information log 
 Write-Host "Checking File Storage in Subscription scope: $subscription_id"
-
-# if ($devEnv -eq $false) { Connect-AzAccount -Identity } 
-# Set-AzContext -SubscriptionId $subscription_id
 
 $query = "Resources | where kind =~ 'FileStorage' | where tags['$($tag_autogrow)']=='true' | project name, tags, resourceGroup"
 $azgraphResponse = Search-AzGraph -Query $query
 Write-Host $azgraphResponse.Data
 $storageAccounts = $azgraphResponse.Data
 
-[System.Collections.ArrayList]$messages = @()
+Write-Host "Number of STORAGE ACCOUNTS found: $($storageAccounts.Count)" 
+[System.Collections.ArrayList]$shareStatsCollection = @()
 
 foreach ($storageAccount in $storageAccounts) {
     $tagobj = Get-AzStorageAccount -ResourceGroupName $storageAccount.resourceGroup -Name $storageAccount.name | Select-Object tags
@@ -40,13 +37,13 @@ foreach ($storageAccount in $storageAccounts) {
     foreach ($share in $shares) {
         $shareDetail = Get-AzRmStorageShare -ResourceGroupName $storageAccount.resourceGroup -StorageAccountName $storageAccount.name -Name $share.Name -GetShareUsage
         $ProvisionedCapacity = $share.QuotaGiB
-        $UsedCapacity = $shareDetail.ShareUsageBytes
-        Write-Host "Premium File Storage Share quota: $($share.Name): $($share.QuotaGiB)GB - Used capacity: $UsedCapacity"
+        $UsedCapacityBytes = $shareDetail.ShareUsageBytes
+        Write-Host "Premium File Storage Share quota: $($share.Name): $($share.QuotaGiB)GB - Used capacity: $UsedCapacityBytes"
 
-        # remaining capacity in GB (with convert usedCapacity bytes to GB)
-        $remainingCapacity = ($ProvisionedCapacity - ($UsedCapacity / ([Math]::Pow(2, 30))))
-        # capacity in bytes can also be converted to GB: [math]::round($byteValue /1Gb, 3)
-        
+        $usedCapacity = ($UsedCapacityBytes / ([Math]::Pow(2, 30)))
+        # remaining capacity in GB (with convert usedCapacity bytes to GB). Capacity in bytes can also be converted to GB: [math]::round($byteValue /1Gb, 3)
+        $remainingCapacity = ($ProvisionedCapacity - $usedCapacity)
+                
         $message = @{
             SubscriptionId      = $subscription_id
             ResourceGroup       = $storageAccount.resourceGroup
@@ -54,14 +51,17 @@ foreach ($storageAccount in $storageAccounts) {
             StorageAccount      = $storageAccount.name
             ProvisionedCapacity = $ProvisionedCapacity
             quotagrowth         = $quotagrowth
-            UsedCapacity        = $UsedCapacity
+            RemainingCapacity   = $remainingCapacity
+            UsedCapacity        = $usedCapacity
             TagAutogrow         = $tagobj.Tags.$tag_autogrow
             TagWatermark        = $tagobj.Tags.$tag_watermark
             TagQuotagrowth      = $tagobj.Tags.$tag_quotagrowth
         }
-
-        if ($devEnv) { $remainingCapacity = 1 }
-        if ($remainingCapacity -ge $watermark ) {
+        # collate all stats 
+        $shareStatsCollection.Add($message)
+        
+        # Write to the queue to if the remaining capacity is higher than the watermark level. When running locally always force a quota increase
+        if ($usedCapacity -ge $watermark ) {
 
             Write-Host "Queing storageAccount quota increase request..."
             $jsonMessage = $message | ConvertTo-Json
@@ -73,18 +73,18 @@ foreach ($storageAccount in $storageAccounts) {
             $message = "Storage Share: $($share.Name) - Remaining capacity sufficient: $([math]::round($remainingCapacity,2))GB" 
             Write-Host $message
         }
-        # collate all stats 
-        $messages.Add($message)
+        
     }
     
 }
-# Write to shareStats log
+# Write to shareStats log - this is a point in time snapshop of the share status 
+$Time = Get-Date
 $shareStats = [PSCustomObject]@{
     StatsDate            = $Time.ToUniversalTime()
     SubscriptionId       = $subscription_id
-    ShareStatsCollection = $messages
+    ShareStatsCollection = $shareStatsCollection
 } 
-Push-OutputBinding -Name shareStatsBlob -Value $shareStats | ConvertTo-Json
+Push-OutputBinding -Name shareStatsBlob -Value $shareStats
 
 # Write an information log with the current time.
 Write-Host "CHECKFSQUOTA timer trigger function ran! TIME: $currentUTCtime"

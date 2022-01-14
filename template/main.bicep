@@ -20,9 +20,6 @@ resource fileStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   sku: {
     name: 'Premium_LRS'
   }
-  properties: {
-    accessTier: 'Premium'
-  }
   tags: {
     'autogrow': 'true'
     'watermark': '85'

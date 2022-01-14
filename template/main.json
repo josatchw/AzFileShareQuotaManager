@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "4998622947880679176"
+      "templateHash": "16305074407180311679"
     }
   },
   "functions": [],
@@ -77,12 +77,9 @@
       "sku": {
         "name": "Premium_LRS"
       },
-      "properties": {
-        "accessTier": "Premium"
-      },
       "tags": {
         "autogrow": "true",
-        "watermark": "15",
+        "watermark": "85",
         "quotagrowth": "15"
       }
     },
