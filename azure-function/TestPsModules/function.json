@@ -11,13 +11,6 @@
       "type": "http",
       "direction": "out",
       "name": "Response"
-    },
-    {
-      "type": "blob",
-      "direction": "out",
-      "name": "shareStatsBlob",
-      "path": "sharestats/filesharestats.log",
-      "connection": "outputShareStats_STORAGE"
     }
   ]
 }
