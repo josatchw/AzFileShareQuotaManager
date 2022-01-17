@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "shareStatsStorageSas": {
+      "value": "{SAS URL from shared stats file in storage }",
+      "type": "string",
+      "metadata": {
+        "description": "sas url for the storage account where share stats json is stored"
+      }
+    },
+    "laWorkspace": {
+      "value": "'/subscriptions/{SUBID}/resourceGroups/management-rg/providers/Microsoft.OperationalInsights/workspaces/{LA_WORKSPACE_NAME}'",
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace associated with this workbook"
+      }
+    }
+  }
+}

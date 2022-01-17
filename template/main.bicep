@@ -6,7 +6,6 @@ var location = resourceGroup().location
 var quota = 100
 var FSstorageAccountName = 'fs${namePrefix}${uniqueString(resourceGroup().id)}'
 var QUstorageAccountName = 'qu${namePrefix}${uniqueString(resourceGroup().id)}'
-//var appName = 'app${namePrefix}${uniqueString(resourceGroup().id)}'
 // storage accounts must be between 3 and 24 characters in length and use numbers and lower-case letters only
 var storageAccountName = 'ap${namePrefix}${uniqueString(resourceGroup().id)}'
 var hostingPlanName = 'apphp${namePrefix}${uniqueString(resourceGroup().id)}'

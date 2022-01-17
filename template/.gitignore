@@ -1,0 +1,4 @@
+
+# Azure secrets
+*.secret.json
+

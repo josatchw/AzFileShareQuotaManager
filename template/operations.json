@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "1101838907745393187"
+    }
+  },
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "AzStorageQuotaWorkbook2",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "Azure Monitor",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    },
+    "shareStatsStorageSas": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The storage SAS URL where the log file is stored for share stats"
+      }
+    },
+    "laWorkspace": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Log Analytics workspace associated with this workbook"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "workbookContent": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "[format('let PFSstats = (externaldata (Resource:string, ShareStatsCollection:dynamic ) [@\"{0}\"] with(format=\"multijson\"));\r\n\r\nPFSstats\r\n| mv-expand ShareStatsCollection\r\n| extend FileShare = parse_json(ShareStatsCollection).FileShare, StorageAccount = parse_json(ShareStatsCollection).StorageAccount, SubscriptionId = parse_json(ShareStatsCollection).SubscriptionId, ResourceGroup = parse_json(ShareStatsCollection).ResourceGroup, Quota = parse_json(ShareStatsCollection).ProvisionedCapacity, UsedCapacity = parse_json(ShareStatsCollection).UsedCapacity, Autogrow = parse_json(ShareStatsCollection).TagAutogrow, AutogrowWatermark = parse_json(ShareStatsCollection).TagWatermark, AutogrowPercent = parse_json(ShareStatsCollection).quotagrowth\r\n| project FileShare, StorageAccount, SubscriptionId, ResourceGroup, Quota, UsedCapacity, Autogrow, AutogrowWatermark, AutogrowPercent\r\n| sort by tostring(FileShare) asc', parameters('shareStatsStorageSas'))]",
+            "size": 0,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "crossComponentResources": ["[parameters('laWorkspace')]"],
+            "gridSettings": {
+              "labelSettings": [
+                {
+                  "columnId": "Quota",
+                  "label": "Quota GB"
+                },
+                {
+                  "columnId": "UsedCapacity",
+                  "label": "Used Capacity GB"
+                },
+                {
+                  "columnId": "Autogrow",
+                  "label": "Autogrow Enabled"
+                },
+                {
+                  "columnId": "AutogrowPercent",
+                  "label": "Autogrow %"
+                }
+              ]
+            }
+          },
+          "name": "query - 0"
+        }
+      ],
+      "isLocked": false,
+      "fallbackResourceIds": ["Azure Monitor"]
+    }
+  },
+  "resources": [
+    {
+      "type": "microsoft.insights/workbooks",
+      "apiVersion": "2021-03-08",
+      "name": "[parameters('workbookId')]",
+      "location": "[resourceGroup().location]",
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[string(variables('workbookContent'))]",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId('microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  }
+}

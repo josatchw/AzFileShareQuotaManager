@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "16305074407180311679"
+      "templateHash": "4402575046167796421"
     }
   },
   "functions": [],
@@ -20,7 +20,9 @@
     "hostingPlanName": "[format('apphp{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
     "appInsightsName": "[format('appin{0}{1}', variables('namePrefix'), uniqueString(resourceGroup().id))]",
     "functionAppName": "[format('app{0}', variables('namePrefix'))]",
-    "fileShareName": "testshare1"
+    "fileShareName": "testshare1",
+    "sasUri": "https://ququotamgr3cm5dzmnn2isvk.blob.core.windows.net/sharestats/filesharestats.log?sp=r&st=2022-01-14T03:54:19Z&se=3022-01-14T11:54:19Z&spr=https&sv=2020-08-04&sr=b&sig=qrI9VQ8VQi7ZPcB%2F0vOgikIHtuVE%2Bo5byED1hFXMLTw%3D",
+    "workbookData": "{ \"version\": \"Notebook/1.0\", \r\n      \"items\": [\r\n        {\r\n          \"type\": 1,\r\n          \"content\": {\r\n            \"json\": \"## Azure Premium File Shares\\r\\n---\"\r\n          },\r\n          \"name\": \"text - 0\"\r\n        },\r\n        {\r\n          \"type\": 3,\r\n          \"content\": {\r\n            \"version\": \"KqlItem/1.0\",\r\n            \"query\": \"let PFSstats = (externaldata (Resource:string, ShareStatsCollection:dynamic ) [@\\\"https://ququotamgr3cm5dzmnn2isvk.blob.core.windows.net/sharestats/filesharestats.log?sp=r&st=2022-01-14T03:54:19Z&se=3022-01-14T11:54:19Z&spr=https&sv=2020-08-04&sr=b&sig=qrI9VQ8VQi7ZPcB%2F0vOgikIHtuVE%2Bo5byED1hFXMLTw%3D\\\"] with(format=\\\"multijson\\\"));\\r\\n\\r\\nPFSstats\\r\\n| mv-expand ShareStatsCollection\\r\\n| extend FileShare = parse_json(ShareStatsCollection).FileShare, StorageAccount = parse_json(ShareStatsCollection).StorageAccount, SubscriptionId = parse_json(ShareStatsCollection).SubscriptionId, ResourceGroup = parse_json(ShareStatsCollection).ResourceGroup, Quota = parse_json(ShareStatsCollection).ProvisionedCapacity, UsedCapacity = parse_json(ShareStatsCollection).UsedCapacity, Autogrow = parse_json(ShareStatsCollection).TagAutogrow, AutogrowWatermark = parse_json(ShareStatsCollection).TagWatermark, AutogrowPercent = parse_json(ShareStatsCollection).quotagrowth\\r\\n| project FileShare, StorageAccount, SubscriptionId, ResourceGroup, Quota, UsedCapacity, Autogrow, AutogrowWatermark, AutogrowPercent\\r\\n| sort by tostring(FileShare) asc\\r\\n\",\r\n            \"size\": 0,\r\n            \"timeContext\": {\r\n              \"durationMs\": 86400000\r\n            },\r\n            \"queryType\": 0,\r\n            \"resourceType\": \"microsoft.operationalinsights/workspaces\",\r\n            \"crossComponentResources\": [\r\n              \"/subscriptions/32e58a75-e6e2-4539-93ae-27b1ee3bb81b/resourcegroups/defaultresourcegroup-wus2/providers/microsoft.operationalinsights/workspaces/defaultworkspace-32e58a75-e6e2-4539-93ae-27b1ee3bb81b-wus2\"\r\n            ],\r\n            \"gridSettings\": {\r\n              \"labelSettings\": [\r\n                {\r\n                  \"columnId\": \"FileShare\",\r\n                  \"label\": \"Fileshare\"\r\n                },\r\n                {\r\n                  \"columnId\": \"StorageAccount\",\r\n                  \"label\": \"Storage Account\"\r\n                },\r\n                {\r\n                  \"columnId\": \"SubscriptionId\",\r\n                  \"label\": \"Subscription Id\"\r\n                },\r\n                {\r\n                  \"columnId\": \"ResourceGroup\",\r\n                  \"label\": \"Resource Group\"\r\n                },\r\n                {\r\n                  \"columnId\": \"Quota\",\r\n                  \"label\": \"Assigned Quota (GB)\"\r\n                },\r\n                {\r\n                  \"columnId\": \"UsedCapacity\",\r\n                  \"label\": \"Used Capacity (GB)\"\r\n                },\r\n                {\r\n                  \"columnId\": \"Autogrow\",\r\n                  \"label\": \"Autogrow Enabled\"\r\n                },\r\n                {\r\n                  \"columnId\": \"AutogrowWatermark\",\r\n                  \"label\": \"Autogrow Used Watermark (%)\"\r\n                },\r\n                {\r\n                  \"columnId\": \"AutogrowPercent\",\r\n                  \"label\": \"Autogrow %\"\r\n                }\r\n              ]\r\n            }\r\n          },\r\n          \"name\": \"query - 1\",\r\n          \"styleSettings\": {\r\n            \"showBorder\": true\r\n          }\r\n        }\r\n      ],\r\n      \"isLocked\": false,\r\n      \"fallbackResourceIds\": [\r\n        \"azure monitor\"\r\n      ]\r\n    }"
   },
   "resources": [
     {
@@ -201,6 +203,25 @@
         "[resourceId('Microsoft.Storage/storageAccounts', variables('QUstorageAccountName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.Insights/workbooks",
+      "apiVersion": "2021-08-01",
+      "name": "[guid('shareStats')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "env": "Dev"
+      },
+      "kind": "user",
+      "properties": {
+        "category": "workbook",
+        "description": "Share usage statistics",
+        "displayName": "Share Stats Dev",
+        "serializedData": "[variables('workbookData')]",
+        "sourceId": "azure monitor",
+        "version": "1",
+        "storageUri": "/subscriptions/32e58a75-e6e2-4539-93ae-27b1ee3bb81b/resourceGroups/AzFileShareQuotaManager/providers/Microsoft.Storage/storageAccounts/ququotamgr3cm5dzmnn2isvk"
+      }
     }
   ],
   "outputs": {
