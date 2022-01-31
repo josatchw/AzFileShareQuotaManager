@@ -1,0 +1,5 @@
+.git*
+.vscode
+local.settings.json
+testing.ps1
+appsettings.example.json

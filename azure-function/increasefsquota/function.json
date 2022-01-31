@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "QueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "expandfsquota",
+      "connection": "outputMessageQueue_STORAGE"
+    }
+  ]
+}
